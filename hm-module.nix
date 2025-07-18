@@ -37,19 +37,12 @@ in {
 
   config = lib.mkIf config.programs.zen-browser.enable {
     programs.zen-browser = {
-      # Let mkFirefoxModule handle the package assignment automatically
+      # Explicitly provide the package since mkFirefoxModule can't find it automatically
+      package = self.packages.${pkgs.stdenv.system}."${name}";
       policies = lib.mkDefault {
         DisableAppUpdate = true;
         DisableTelemetry = true;
       };
     };
-    
-    # Make the packages available to mkFirefoxModule
-    nixpkgs.overlays = [
-      (final: prev: {
-        "zen-${name}" = self.packages.${pkgs.stdenv.system}."${name}";
-        "zen-${name}-unwrapped" = self.packages.${pkgs.stdenv.system}."${name}-unwrapped";
-      })
-    ];
   };
 }
