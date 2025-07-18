@@ -37,14 +37,19 @@ in {
 
   config = lib.mkIf config.programs.zen-browser.enable {
     programs.zen-browser = {
-      package = if pkgs.stdenv.hostPlatform.isDarwin 
-        then self.packages.${pkgs.stdenv.system}."${name}-unwrapped"
-        else pkgs.wrapFirefox self.packages.${pkgs.stdenv.system}."${name}-unwrapped" {};
-      # This does not work, the package can't build using these policies
+      # Let mkFirefoxModule handle the package assignment automatically
       policies = lib.mkDefault {
         DisableAppUpdate = true;
         DisableTelemetry = true;
       };
     };
+    
+    # Make the packages available to mkFirefoxModule
+    nixpkgs.overlays = [
+      (final: prev: {
+        "zen-${name}" = self.packages.${pkgs.stdenv.system}."${name}";
+        "zen-${name}-unwrapped" = self.packages.${pkgs.stdenv.system}."${name}-unwrapped";
+      })
+    ];
   };
 }

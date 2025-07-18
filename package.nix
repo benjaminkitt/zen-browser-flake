@@ -3,6 +3,7 @@
   variant,
   desktopFile,
   policies ? {},
+  cfg ? {},
   lib,
   stdenv,
   config,
@@ -45,12 +46,13 @@
   };
 
   firefoxPolicies =
-    (config.firefox.policies or {})
+    (cfg.policies or {})
+    // (config.firefox.policies or {})
     // policies;
 
   policiesJson = writeText "firefox-policies.json" (builtins.toJSON {policies = firefoxPolicies;});
 
-  pname = "zen-${name}-bin-unwrapped";
+  pname = "zen-${name}-unwrapped";
 in
   stdenv.mkDerivation {
     inherit pname;
