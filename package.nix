@@ -2,9 +2,46 @@
   name,
   variant,
   desktopFile,
+  
+  # Core Firefox wrapper parameters
   policies ? {},
   cfg ? {},
   extraPolicies ? {},
+  extraPrefs ? "",
+  extraPrefsFiles ? [],
+  extraPoliciesFiles ? [],
+  
+  # Security and integration
+  pkcs11Modules ? [],
+  nativeMessagingHosts ? [],
+  
+  # Extensions
+  nixExtensions ? null,
+  
+  # System integration
+  useGlvnd ? (!stdenv.hostPlatform.isDarwin),
+  hasMozSystemDirPatch ? false,
+  
+  # Feature flags
+  pipewireSupport ? false,
+  ffmpegSupport ? true,
+  gssSupport ? true,
+  enableAdobeFlash ? false,
+  enableGnomeExtensions ? false,
+  
+  # Build configuration
+  allowAddonSideload ? false,
+  requireSigning ? true,
+  
+  # Branding
+  branding ? null,
+  
+  # UI and naming
+  icon ? applicationName,
+  wmClass ? applicationName,
+  nameSuffix ? "",
+  
+  # System dependencies
   lib,
   stdenv,
   config,
