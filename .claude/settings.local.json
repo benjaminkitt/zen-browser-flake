@@ -6,7 +6,8 @@
       "Bash(nix log:*)",
       "Bash(ls:*)",
       "Bash(result/Applications/Zen.app/Contents/MacOS/zen --help)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(nix eval:*)"
     ],
     "deny": []
   }
