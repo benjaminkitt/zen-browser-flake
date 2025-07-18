@@ -15,9 +15,9 @@ in rec {
   twilight-unwrapped = mkZen pkgs "twilight" system "twilight";
   twilight-official-unwrapped = mkZen pkgs "twilight" system "twilight-official";
 
-  beta = pkgs.wrapFirefox beta-unwrapped {};
-  twilight = pkgs.wrapFirefox twilight-unwrapped {};
-  twilight-official = pkgs.wrapFirefox twilight-official-unwrapped {};
+  beta = if pkgs.stdenv.hostPlatform.isDarwin then beta-unwrapped else pkgs.wrapFirefox beta-unwrapped {};
+  twilight = if pkgs.stdenv.hostPlatform.isDarwin then twilight-unwrapped else pkgs.wrapFirefox twilight-unwrapped {};
+  twilight-official = if pkgs.stdenv.hostPlatform.isDarwin then twilight-official-unwrapped else pkgs.wrapFirefox twilight-official-unwrapped {};
 
   default = beta;
 }

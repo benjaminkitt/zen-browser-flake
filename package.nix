@@ -20,6 +20,7 @@
   adwaita-icon-theme,
   writeText,
   patchelfUnstable, # have to use patchelfUnstable to support --no-clobber-old-sections
+  undmg,
   applicationName ?
     "Zen Browser"
     + (
@@ -39,6 +40,8 @@
   mozillaPlatforms = {
     x86_64-linux = "linux-x86_64";
     aarch64-linux = "linux-aarch64";
+    aarch64-darwin = "macos-universal";
+    x86_64-darwin = "macos-universal";
   };
 
   firefoxPolicies =
@@ -53,41 +56,57 @@ in
     inherit pname;
     inherit (variant) version;
 
-    src = builtins.fetchTarball {inherit (variant) url sha256;};
+    src = if stdenv.hostPlatform.isDarwin
+      then builtins.fetchurl {inherit (variant) url sha256;}
+      else builtins.fetchTarball {inherit (variant) url sha256;};
     desktopSrc = ./assets/desktop;
 
-    nativeBuildInputs = [
+    nativeBuildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+      undmg
+    ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
       wrapGAppsHook3
       autoPatchelfHook
       patchelfUnstable
     ];
-    buildInputs = [
+    buildInputs = lib.optionals (!stdenv.hostPlatform.isDarwin) [
       gtk3
       adwaita-icon-theme
       alsa-lib
       dbus-glib
       libXtst
     ];
-    runtimeDependencies = [
+    runtimeDependencies = lib.optionals (!stdenv.hostPlatform.isDarwin) [
       curl
       libva.out
       pciutils
       libGL
     ];
-    appendRunpaths = [
+    appendRunpaths = lib.optionals (!stdenv.hostPlatform.isDarwin) [
       "${libGL}/lib"
       "${pipewire}/lib"
     ];
     # Firefox uses "relrhack" to manually process relocations from a fixed offset
-    patchelfFlags = ["--no-clobber-old-sections"];
+    patchelfFlags = lib.optionals (!stdenv.hostPlatform.isDarwin) ["--no-clobber-old-sections"];
 
-    preFixup = ''
+    unpackPhase = lib.optionalString stdenv.hostPlatform.isDarwin ''
+      undmg $src
+      sourceRoot="."
+    '';
+
+    preFixup = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
       gappsWrapperArgs+=(
         --add-flags "--name=''${MOZ_APP_LAUNCHER:-${binaryName}}"
       )
     '';
 
-    installPhase = ''
+    installPhase = if stdenv.hostPlatform.isDarwin then ''
+      mkdir -p "$out/Applications"
+      cp -r "Zen.app" "$out/Applications/"
+      
+      mkdir -p "$out/bin"
+      ln -s "$out/Applications/Zen.app/Contents/MacOS/zen" "$out/bin/${binaryName}"
+      ln -s "$out/bin/${binaryName}" "$out/bin/zen"
+    '' else ''
       mkdir -p "$prefix/lib/${libName}"
       cp -r "$src"/* "$prefix/lib/${libName}"
 
@@ -123,7 +142,7 @@ in
       changelog = "https://github.com/zen-browser/desktop/releases";
       sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
       platforms = builtins.attrNames mozillaPlatforms;
-      broken = stdenv.hostPlatform.isDarwin;
+      broken = false;
       hydraPlatforms = [];
       mainProgram = binaryName;
     };
