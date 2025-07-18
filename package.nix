@@ -4,6 +4,7 @@
   desktopFile,
   policies ? {},
   cfg ? {},
+  extraPolicies ? {},
   lib,
   stdenv,
   config,
@@ -48,7 +49,8 @@
   firefoxPolicies =
     (cfg.policies or {})
     // (config.firefox.policies or {})
-    // policies;
+    // policies
+    // extraPolicies;
 
   policiesJson = writeText "firefox-policies.json" (builtins.toJSON {policies = firefoxPolicies;});
 
