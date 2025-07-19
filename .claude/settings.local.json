@@ -7,7 +7,9 @@
       "Bash(ls:*)",
       "Bash(result/Applications/Zen.app/Contents/MacOS/zen --help)",
       "Bash(open:*)",
-      "Bash(nix eval:*)"
+      "Bash(nix eval:*)",
+      "Bash(find:*)",
+      "Bash(nix flake check:*)"
     ],
     "deny": []
   }
