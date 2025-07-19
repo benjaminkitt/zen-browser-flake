@@ -150,7 +150,7 @@ in
       ln -s ${policiesJson} "$out/Applications/Zen.app/Contents/Resources/distribution/policies.json"
       
       mkdir -p "$out/bin"
-      ln -s "$out/Applications/Zen.app/Contents/MacOS/${binaryName}" "$out/bin/${binaryName}"
+      ln -s "$out/Applications/Zen.app/Contents/MacOS/zen" "$out/bin/${binaryName}"
       ln -s "$out/bin/${binaryName}" "$out/bin/zen"
     '' else ''
       mkdir -p "$prefix/lib/${libName}"
