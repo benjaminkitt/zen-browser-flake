@@ -29,7 +29,7 @@ in {
           configPath = ".zen";
         };
         darwin = {
-          configPath = "Library/Application Support/Zen";
+          configPath = "Library/Application Support/zen";
         };
       };
     })
