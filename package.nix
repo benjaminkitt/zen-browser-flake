@@ -145,6 +145,10 @@ in
       mkdir -p "$out/Applications"
       cp -r "Zen.app" "$out/Applications/"
       
+      # Install Firefox policies for configuration
+      mkdir -p "$out/Applications/Zen.app/Contents/Resources/distribution"
+      ln -s ${policiesJson} "$out/Applications/Zen.app/Contents/Resources/distribution/policies.json"
+      
       mkdir -p "$out/bin"
       ln -s "$out/Applications/Zen.app/Contents/MacOS/zen" "$out/bin/${binaryName}"
       ln -s "$out/bin/${binaryName}" "$out/bin/zen"
