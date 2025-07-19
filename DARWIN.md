@@ -92,5 +92,5 @@ Configuration files are stored in `~/Library/Application Support/Zen` on macOS.
 ## Notes
 
 - The macOS version uses the universal binary that supports both Intel and Apple Silicon
-- No wrapper is needed on Darwin - the app bundle is used directly
+- macOS builds now use the Firefox wrapper, allowing configuration through Home Manager
 - The browser integrates with macOS system preferences and notifications

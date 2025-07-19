@@ -61,16 +61,17 @@
   patchelfUnstable, # have to use patchelfUnstable to support --no-clobber-old-sections
   undmg,
   applicationName ?
-    "Zen Browser"
-    + (
-      if name == "beta"
-      then " (Beta)"
-      else if name == "twilight"
-      then " (Twilight)"
-      else if name == "twilight-official"
-      then " (Twilight)"
-      else ""
-    ),
+    (if stdenv.hostPlatform.isDarwin
+     then "Zen"
+     else "Zen Browser" + (
+       if name == "beta"
+       then " (Beta)"
+       else if name == "twilight"
+       then " (Twilight)"
+       else if name == "twilight-official"
+       then " (Twilight)"
+       else ""
+     )),
 }: let
   binaryName = "zen-${name}";
 
