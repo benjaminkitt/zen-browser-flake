@@ -31,6 +31,7 @@ let
   darwinConfigPath = "Library/Application Support/Zen";
 
   configPath = "${(if pkgs.stdenv.isDarwin then darwinConfigPath else linuxConfigPath)}";
+  profilesPath = if pkgs.stdenv.isDarwin then "${configPath}/Profiles" else configPath;
 
   mkFirefoxModule = import "${home-manager.outPath}/modules/programs/firefox/mkFirefoxModule.nix";
 in
@@ -233,8 +234,8 @@ in
         profileName: profile:
         let
           sqlite3 = getExe' pkgs.sqlite "sqlite3";
-          scriptFile = "${configPath}/${profileName}/places_update.sh";
-          placesFile = "${config.home.homeDirectory}/${configPath}/${profileName}/places.sqlite";
+          scriptFile = "${profilesPath}/${profileName}/places_update.sh";
+          placesFile = "${config.home.homeDirectory}/${profilesPath}/${profileName}/places.sqlite";
 
           insertSpaces = ''
             # Reference: https://github.com/zen-browser/desktop/blob/4e2dfd8a138fd28767bb4799a3ca9d8aab80430e/src/zen/workspaces/ZenWorkspacesStorage.mjs#L25-L55
@@ -373,7 +374,7 @@ in
             ''
           );
           onChange = ''
-            ${config.home.homeDirectory}/${scriptFile}
+            "${config.home.homeDirectory}/${scriptFile}"
             if [[ "$?" -ne 0 ]]; then
               RED="\033[0;31m"
               NC="\033[0m"
@@ -384,5 +385,22 @@ in
           force = true;
         }
       ) (filterAttrs (_: profile: profile.spaces != { } || profile.spacesForce) cfg.profiles));
+
+    # Add activation script to run places update on every rebuild
+    home.activation.updateZenPlaces = lib.hm.dag.entryAfter ["writeBoundary"] (
+      lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (profileName: profile: 
+          lib.optionalString (profile.spaces != { } || profile.spacesForce) ''
+            echo "Updating Zen browser spaces for profile: ${profileName}"
+            if [[ -f "${config.home.homeDirectory}/${profilesPath}/${profileName}/places_update.sh" ]]; then
+              "${config.home.homeDirectory}/${profilesPath}/${profileName}/places_update.sh"
+              if [[ "$?" -ne 0 ]]; then
+                echo "Warning: Failed to update Zen browser spaces for profile ${profileName}"
+              fi
+            fi
+          ''
+        ) cfg.profiles
+      )
+    );
   };
 }
